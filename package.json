@@ -13,14 +13,9 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
-<<<<<<< HEAD
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "pg": "^8.20.0"
-=======
-    "express": "^5.2.1",
-    "pg": "^8.18.0"
->>>>>>> 0524fb48fabd439f0a395f2d2bc91fcdd85935c1
   }
 }
