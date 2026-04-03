@@ -19,9 +19,14 @@ const pool = new Pool({
 // HOME PAGE
 // =======================
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
+// =======================
+// OWNER PAGE
+// =======================
+app.get('/owner', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'owner.html'));
+});
 
 // =======================
 // JOIN QUEUE (PER DAY)
