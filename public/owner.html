@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <h1>Dashboard</h1>
+<div class="container">
+  <h1>Dashboard</h1>
 
-    <div class="card controls">
-      <button id="serveBtn">Serve Next</button>
-      <button id="clearBtn" class="danger">Clear Queue</button>
-    </div>
+  <h2 id="currentServing">Now Serving: ...</h2>
 
-    <div class="card">
-      <h2>Today's Queue</h2>
-      <ul id="queueList"></ul>
-    </div>
+  <div class="card">
+    <button id="serveBtn">Serve Next</button>
+    <button id="clearBtn">Clear Queue</button>
   </div>
 
-  <script src="owner.js"></script>
+  <div class="card">
+    <ul id="queueList"></ul>
+  </div>
+</div>
+
+<script src="owner.js"></script>
 </body>
 </html>

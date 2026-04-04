@@ -1,16 +1,11 @@
 const queueList = document.getElementById('queueList');
-const serveBtn = document.getElementById('serveBtn');
 
+// LOAD QUEUE
 async function loadQueue() {
   const res = await fetch('/queue');
   const data = await res.json();
 
   queueList.innerHTML = '';
-
-  if (data.length === 0) {
-    queueList.innerHTML = "<p>No customers in queue</p>";
-    return;
-  }
 
   data.forEach((item, index) => {
     const li = document.createElement('li');
@@ -19,19 +14,36 @@ async function loadQueue() {
   });
 }
 
-serveBtn.addEventListener('click', async () => {
+// NOW SERVING
+async function loadCurrent() {
+  const res = await fetch('/current');
+  const data = await res.json();
+
+  const el = document.getElementById('currentServing');
+
+  if (data.message) {
+    el.textContent = "Now Serving: None";
+  } else {
+    el.textContent = "Now Serving: " + data.phone;
+  }
+}
+
+// BUTTONS
+document.getElementById('serveBtn').addEventListener('click', async () => {
   await fetch('/serve-next', { method: 'DELETE' });
   loadQueue();
 });
 
-setInterval(loadQueue, 3000);
-loadQueue();
-const clearBtn = document.getElementById('clearBtn');
-
-clearBtn.addEventListener('click', async () => {
-  const confirmClear = confirm("Are you sure you want to clear the queue?");
-  if (!confirmClear) return;
-
+document.getElementById('clearBtn').addEventListener('click', async () => {
   await fetch('/clear-queue', { method: 'DELETE' });
   loadQueue();
 });
+
+// AUTO REFRESH
+setInterval(() => {
+  loadQueue();
+  loadCurrent();
+}, 3000);
+
+loadQueue();
+loadCurrent();

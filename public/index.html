@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>SmartQueue DZ</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="container">
-    <h1>SmartQueue DZ</h1>
-    <p class="subtitle">Join the queue بسهولة</p>
+<div class="container">
+  <h1>SmartQueue DZ</h1>
 
-    <div class="card">
-      <input type="text" id="phone" placeholder="Enter your phone (0551234567)">
-      <button onclick="joinQueue()">Join Queue</button>
+  <h2 id="currentServing">Now Serving: ...</h2>
 
-      <p id="response"></p>
-    </div>
+  <div class="card">
+    <input id="phone" placeholder="0551234567">
+    <button onclick="joinQueue()">Join Queue</button>
+    <p id="response"></p>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
