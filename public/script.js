@@ -1,19 +1,14 @@
 // Get elements
 const phoneInput = document.getElementById('phone');
-const joinBtn = document.getElementById('joinBtn');
-const result = document.getElementById('result');
+const result = document.getElementById('response');
 
-// Only allow digits while typing
-phoneInput.addEventListener('input', () => {
-  phoneInput.value = phoneInput.value.replace(/\D/g, '');
-});
-
-joinBtn.addEventListener('click', async () => {
+// Function instead of button listener
+async function joinQueue() {
   const phone = phoneInput.value.trim();
 
-  // Validate Algerian number
   if (!/^0[567]\d{8}$/.test(phone)) {
     result.textContent = "Numéro invalide (ex: 0551234567)";
+    result.style.color = "red";
     return;
   }
 
@@ -26,14 +21,13 @@ joinBtn.addEventListener('click', async () => {
 
     const data = await res.json();
 
-    if (data.error) {
-      result.textContent = data.error;
-    } else {
-      result.textContent = data.message;
-    }
+    result.textContent = data.error || data.message;
+    
+    result.style.color = data.error ? "red" : "lightgreen";
 
   } catch (err) {
     console.error(err);
     result.textContent = "Server error";
+    result.style.color = "red";
   }
-});
+}

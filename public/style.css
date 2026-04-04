@@ -2,48 +2,73 @@ body {
   font-family: Arial, sans-serif;
   background: #0f172a;
   color: white;
-  text-align: center;
   margin: 0;
   padding: 0;
 }
 
 .container {
-  margin-top: 50px;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
 }
 
 h1 {
-  color: #22c55e;
+  margin-bottom: 5px;
 }
 
-h2 {
-  margin-top: 30px;
+.subtitle {
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 10px;
+  font-size: 16px;
 }
 
 button {
-  padding: 12px 20px;
-  font-size: 16px;
-  background: #22c55e;
-  border: none;
+  width: 100%;
+  padding: 12px;
   border-radius: 8px;
+  border: none;
+  background: #22c55e;
+  color: white;
+  font-size: 16px;
   cursor: pointer;
-  color: black;
 }
 
 button:hover {
-  background: #16a34a;
+  opacity: 0.9;
+}
+
+button.danger {
+  background: #ef4444;
+}
+
+.controls button {
+  margin-bottom: 10px;
 }
 
 ul {
   list-style: none;
   padding: 0;
-  margin-top: 20px;
 }
 
 li {
-  background: #1e293b;
-  margin: 10px auto;
-  padding: 15px;
-  width: 250px;
-  border-radius: 8px;
-  font-size: 18px;
+  background: #334155;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 6px;
 }

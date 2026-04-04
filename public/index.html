@@ -6,12 +6,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="queue-container">
+
+  <div class="container">
     <h1>SmartQueue DZ</h1>
-    <input type="text" id="phone" placeholder="Enter your phone" maxlength="10">
-    <button id="joinBtn">Join Queue</button>
-    <p id="result"></p>
+    <p class="subtitle">Join the queue بسهولة</p>
+
+    <div class="card">
+      <input type="text" id="phone" placeholder="Enter your phone (0551234567)">
+      <button onclick="joinQueue()">Join Queue</button>
+
+      <p id="response"></p>
+    </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
