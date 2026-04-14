@@ -1,8 +1,15 @@
 const shop = location.pathname.split('/')[2];
 document.getElementById('title').textContent = shop;
 
+const phoneInput = document.getElementById('phone');
+
+phoneInput.addEventListener('input', () => {
+  phoneInput.value = phoneInput.value.replace(/\D/g, '');
+});
+
 async function join() {
-  const phone = document.getElementById('phone').value;
+  const phone = phoneInput.value;
+
   const res = await fetch('/join-queue', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},

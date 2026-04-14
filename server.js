@@ -12,9 +12,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// =======================
 // CREATE SHOP
-// =======================
 app.post('/create-shop', async (req, res) => {
   const { name } = req.body;
 
@@ -29,7 +27,6 @@ app.post('/create-shop', async (req, res) => {
     );
 
     res.json({
-      shop: name,
       customerLink: `/shop/${name}`,
       ownerLink: `/owner/${name}`
     });
@@ -42,17 +39,13 @@ app.post('/create-shop', async (req, res) => {
   }
 });
 
-// =======================
 // GET SHOPS
-// =======================
 app.get('/shops', async (req, res) => {
-  const { rows } = await pool.query('SELECT name FROM shops');
+  const { rows } = await pool.query('SELECT name FROM shops ORDER BY name');
   res.json(rows);
 });
 
-// =======================
 // ROUTES
-// =======================
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'public/index.html'))
 );
@@ -69,9 +62,7 @@ app.get('/create', (req, res) =>
   res.sendFile(path.join(__dirname, 'public/create.html'))
 );
 
-// =======================
 // JOIN QUEUE
-// =======================
 app.post('/join-queue', async (req, res) => {
   const { phone, shop } = req.body;
 
@@ -99,9 +90,7 @@ app.post('/join-queue', async (req, res) => {
   }
 });
 
-// =======================
 // GET QUEUE
-// =======================
 app.get('/queue/:shop', async (req, res) => {
   const { shop } = req.params;
 
@@ -113,9 +102,7 @@ app.get('/queue/:shop', async (req, res) => {
   res.json(rows);
 });
 
-// =======================
 // SERVE NEXT
-// =======================
 app.delete('/serve-next/:shop', async (req, res) => {
   const { shop } = req.params;
 
@@ -131,5 +118,4 @@ app.delete('/serve-next/:shop', async (req, res) => {
   res.json({ message: 'Served' });
 });
 
-// =======================
 app.listen(3000, () => console.log('Server running'));
