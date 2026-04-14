@@ -1,23 +1,18 @@
-function createShop() {
-  const input = document.getElementById('shopInput');
-  const links = document.getElementById('links');
+async function create() {
+  const name = document.getElementById('name').value;
 
-  let name = input.value.trim().toLowerCase();
+  const res = await fetch('/create-shop', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name })
+  });
 
-  if (!name) {
-    links.textContent = "Enter a name";
-    return;
-  }
+  const data = await res.json();
 
-  name = name.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-  const base = window.location.origin;
-
-  links.innerHTML = `
-    Customer:<br>
-    <a href="/shop/${name}" target="_blank">${base}/shop/${name}</a>
-    <br><br>
-    Owner:<br>
-    <a href="/owner/${name}" target="_blank">${base}/owner/${name}</a>
+  document.getElementById('links').innerHTML = `
+    Customer: ${data.customer}<br>
+    Owner: ${data.owner}
   `;
 }
