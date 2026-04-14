@@ -16,9 +16,14 @@ const pool = new Pool({
 // ROUTES
 // =======================
 
-// Home
+// Redirect home → create page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.redirect('/create');
+});
+
+// Create page
+app.get('/create', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'create.html'));
 });
 
 // Shop page
@@ -135,4 +140,4 @@ app.delete('/clear-queue/:shopId', async (req, res) => {
     res.json({ message: 'Queue cleared' });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(3000, () => console.log('Server running'));
