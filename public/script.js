@@ -1,6 +1,11 @@
 const phoneInput = document.getElementById('phone');
 const result = document.getElementById('response');
 
+const pathParts = window.location.pathname.split('/');
+const shopId = pathParts[2];
+
+document.getElementById('shopName').textContent = shopId;
+
 // JOIN
 async function joinQueue() {
   const phone = phoneInput.value.trim();
@@ -14,7 +19,7 @@ async function joinQueue() {
   const res = await fetch('/join-queue', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone })
+    body: JSON.stringify({ phone, shop_id: shopId })
   });
 
   const data = await res.json();
@@ -25,7 +30,7 @@ async function joinQueue() {
 
 // NOW SERVING
 async function loadCurrent() {
-  const res = await fetch('/current');
+  const res = await fetch(`/current/${shopId}`);
   const data = await res.json();
 
   const el = document.getElementById('currentServing');
@@ -37,5 +42,5 @@ async function loadCurrent() {
   }
 }
 
-loadCurrent();
 setInterval(loadCurrent, 3000);
+loadCurrent();

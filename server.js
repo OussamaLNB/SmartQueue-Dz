@@ -7,23 +7,27 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// PostgreSQL
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
 
 // =======================
-// HOME PAGE
+// ROUTES
 // =======================
+
+// Home
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// =======================
-// OWNER PAGE
-// =======================
-app.get('/owner', (req, res) => {
+// Shop page
+app.get('/shop/:shopId', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Owner page
+app.get('/owner/:shopId', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'owner.html'));
 });
 
@@ -32,10 +36,10 @@ app.get('/owner', (req, res) => {
 // =======================
 app.post('/join-queue', async (req, res) => {
     try {
-        const phone = req.body.phone?.replace(/\s/g, "");
+        const { phone, shop_id } = req.body;
 
-        if (!phone) {
-            return res.status(400).json({ error: 'Phone required' });
+        if (!phone || !shop_id) {
+            return res.status(400).json({ error: 'Missing data' });
         }
 
         if (!/^0[567]\d{8}$/.test(phone)) {
@@ -44,8 +48,8 @@ app.post('/join-queue', async (req, res) => {
 
         try {
             await pool.query(
-                'INSERT INTO queue (phone, created_date) VALUES ($1, CURRENT_DATE)',
-                [phone]
+                'INSERT INTO queue (phone, created_date, shop_id) VALUES ($1, CURRENT_DATE, $2)',
+                [phone, shop_id]
             );
         } catch (err) {
             if (err.code === '23505') {
@@ -55,7 +59,8 @@ app.post('/join-queue', async (req, res) => {
         }
 
         const { rows } = await pool.query(
-            'SELECT COUNT(*) FROM queue WHERE created_date = CURRENT_DATE'
+            'SELECT COUNT(*) FROM queue WHERE created_date = CURRENT_DATE AND shop_id = $1',
+            [shop_id]
         );
 
         res.json({ message: `Your number: ${rows[0].count}` });
@@ -69,70 +74,65 @@ app.post('/join-queue', async (req, res) => {
 // =======================
 // GET QUEUE
 // =======================
-app.get('/queue', async (req, res) => {
-    try {
-        const { rows } = await pool.query(
-            'SELECT id, phone FROM queue WHERE created_date = CURRENT_DATE ORDER BY id ASC'
-        );
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
-    }
+app.get('/queue/:shopId', async (req, res) => {
+    const { shopId } = req.params;
+
+    const { rows } = await pool.query(
+        'SELECT id, phone FROM queue WHERE created_date = CURRENT_DATE AND shop_id = $1 ORDER BY id ASC',
+        [shopId]
+    );
+
+    res.json(rows);
 });
 
 // =======================
 // NOW SERVING
 // =======================
-app.get('/current', async (req, res) => {
-    try {
-        const { rows } = await pool.query(
-            'SELECT id, phone FROM queue WHERE created_date = CURRENT_DATE ORDER BY id ASC LIMIT 1'
-        );
+app.get('/current/:shopId', async (req, res) => {
+    const { shopId } = req.params;
 
-        if (rows.length === 0) {
-            return res.json({ message: "None" });
-        }
+    const { rows } = await pool.query(
+        'SELECT id, phone FROM queue WHERE created_date = CURRENT_DATE AND shop_id = $1 ORDER BY id ASC LIMIT 1',
+        [shopId]
+    );
 
-        res.json(rows[0]);
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
+    if (rows.length === 0) {
+        return res.json({ message: "None" });
     }
+
+    res.json(rows[0]);
 });
 
 // =======================
 // SERVE NEXT
 // =======================
-app.delete('/serve-next', async (req, res) => {
-    try {
-        const { rows } = await pool.query(
-            'SELECT id FROM queue WHERE created_date = CURRENT_DATE ORDER BY id ASC LIMIT 1'
-        );
+app.delete('/serve-next/:shopId', async (req, res) => {
+    const { shopId } = req.params;
 
-        if (rows.length === 0) {
-            return res.json({ message: 'Queue empty' });
-        }
+    const { rows } = await pool.query(
+        'SELECT id FROM queue WHERE created_date = CURRENT_DATE AND shop_id = $1 ORDER BY id ASC LIMIT 1',
+        [shopId]
+    );
 
-        await pool.query('DELETE FROM queue WHERE id = $1', [rows[0].id]);
+    if (rows.length === 0) return res.json({ message: "Empty" });
 
-        res.json({ message: 'Served next' });
+    await pool.query('DELETE FROM queue WHERE id = $1', [rows[0].id]);
 
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
-    }
+    res.json({ message: "Served" });
 });
 
 // =======================
 // CLEAR QUEUE
 // =======================
-app.delete('/clear-queue', async (req, res) => {
-    try {
-        await pool.query(
-            'DELETE FROM queue WHERE created_date = CURRENT_DATE'
-        );
-        res.json({ message: 'Queue cleared' });
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
-    }
+app.delete('/clear-queue/:shopId', async (req, res) => {
+    const { shopId } = req.params;
+
+    await pool.query(
+        'DELETE FROM queue WHERE created_date = CURRENT_DATE AND shop_id = $1',
+        [shopId]
+    );
+
+    res.json({ message: 'Queue cleared' });
 });
 
-app.listen(3000, () => console.log('Server running'));
+app.listen(3000, () => console.log('Server running on port 3000'));

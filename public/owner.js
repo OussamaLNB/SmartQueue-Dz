@@ -1,8 +1,13 @@
 const queueList = document.getElementById('queueList');
 
+const pathParts = window.location.pathname.split('/');
+const shopId = pathParts[2];
+
+document.getElementById('shopName').textContent = shopId;
+
 // LOAD QUEUE
 async function loadQueue() {
-  const res = await fetch('/queue');
+  const res = await fetch(`/queue/${shopId}`);
   const data = await res.json();
 
   queueList.innerHTML = '';
@@ -16,7 +21,7 @@ async function loadQueue() {
 
 // NOW SERVING
 async function loadCurrent() {
-  const res = await fetch('/current');
+  const res = await fetch(`/current/${shopId}`);
   const data = await res.json();
 
   const el = document.getElementById('currentServing');
@@ -30,12 +35,12 @@ async function loadCurrent() {
 
 // BUTTONS
 document.getElementById('serveBtn').addEventListener('click', async () => {
-  await fetch('/serve-next', { method: 'DELETE' });
+  await fetch(`/serve-next/${shopId}`, { method: 'DELETE' });
   loadQueue();
 });
 
 document.getElementById('clearBtn').addEventListener('click', async () => {
-  await fetch('/clear-queue', { method: 'DELETE' });
+  await fetch(`/clear-queue/${shopId}`, { method: 'DELETE' });
   loadQueue();
 });
 
