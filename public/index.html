@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartQueue DZ</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#f0f4f1;min-height:100vh}
+    .sq-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 28px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .18s;font-family:inherit}
+    .sq-btn-primary{background:#006233;color:#fff;box-shadow:0 4px 16px rgba(0,98,51,.3)}
+    .sq-btn-primary:hover{background:#004d28;transform:translateY(-1px)}
+    .sq-btn-primary:disabled{background:#9db8a8;cursor:not-allowed;transform:none;box-shadow:none}
+    .sq-btn-secondary{background:#fff;color:#006233;border:2px solid #006233}
+    .sq-btn-secondary:hover{background:#e6f4ed}
+    .sq-btn-danger{background:#fff0f0;color:#c0392b;border:2px solid #e8b4b4}
+    .sq-btn-danger:hover{background:#ffe0e0}
+    .sq-btn-sm{padding:8px 16px;font-size:13px;border-radius:10px}
+    .sq-card{background:#fff;border-radius:20px;box-shadow:0 2px 20px rgba(0,0,0,.06);padding:28px}
+    .sq-input{width:100%;padding:14px 16px;border-radius:12px;border:2px solid #d4e6da;font-size:15px;font-family:inherit;background:#f8fbf9;outline:none;transition:border-color .18s}
+    .sq-input:focus{border-color:#006233;background:#fff}
+    .sq-input-error{border-color:#e74c3c!important}
+    .sq-tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.5px}
+    .fade-in{animation:fadeIn .35s ease forwards}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .pulse-ring{animation:pulseRing 2s ease-in-out infinite}
+    @keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 rgba(0,98,51,.3)}50%{box-shadow:0 0 0 16px rgba(0,98,51,0)}}
+    .service-card{padding:16px;border-radius:16px;cursor:pointer;border:2px solid transparent;transition:all .18s;background:#f8fbf9}
+    .service-card:hover{border-color:#006233;background:#e6f4ed}
+    .service-card.selected{border-color:#006233;background:#e6f4ed}
+    .type-btn{padding:12px 20px;border-radius:12px;border:2px solid #d4e6da;background:#f8fbf9;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:all .18s;display:flex;align-items:center;gap:8px}
+    .type-btn.active{border-color:#006233;background:#e6f4ed;color:#006233}
+    .type-btn:hover{border-color:#006233}
+    .top-bar{background:#006233;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,98,51,.3)}
+    .lang-toggle{display:flex;gap:4px;background:rgba(255,255,255,.2);border-radius:8px;padding:3px}
+    .lang-btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;font-family:inherit}
+    .lang-btn.active{background:#fff;color:#006233}
+    .lang-btn:not(.active){background:transparent;color:rgba(255,255,255,.8)}
+    .number-display{font-size:88px;font-weight:800;line-height:1;letter-spacing:-4px}
+    .admin-row{display:flex;align-items:center;padding:14px 16px;border-radius:12px;background:#f8fbf9;margin-bottom:10px;border:2px solid transparent;transition:border-color .15s;flex-wrap:wrap;gap:8px}
+    .admin-row.serving-row{border-color:#006233;background:#e6f4ed}
+    .notification-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#006233;color:#fff;padding:14px 24px;border-radius:14px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,98,51,.4);z-index:999;animation:slideUp .3s ease forwards;white-space:nowrap}
+    @keyframes slideUp{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+    .sms-log{background:#e6f4ed;border:2px solid #006233;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:600;color:#006233;animation:fadeIn .4s ease forwards}
+    .hero-section{background:linear-gradient(145deg,#006233 0%,#004d28 60%,#003a1e 100%);padding:60px 24px 80px;text-align:center;position:relative;overflow:hidden}
+    .hero-section::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.05)}
+    .hero-section::after{content:'';position:absolute;bottom:-80px;left:-40px;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.04)}
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media(max-width:600px){.steps-grid{grid-template-columns:1fr}}
+    .scroll-content{max-width:520px;margin:0 auto;padding:0 16px 100px}
+    .footer-cta{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);padding:16px 24px;border-top:1px solid #e0ede4;display:flex;gap:12px;justify-content:center}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+    input[type="checkbox"]{width:18px;height:18px;accent-color:#006233}
+    .spinner{width:32px;height:32px;border:3px solid #d4e6da;border-top-color:#006233;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
+const T = {
+  fr: {
+    heroTitle:"Fini l'attente inutile.", heroSub:"Prenez votre numéro à distance. Arrivez au bon moment.",
+    step1:"Choisissez un service", step2:"Obtenez votre numéro", step3:"Soyez notifié",
+    chooseType:"Choisissez le type de service", chooseService:"Sélectionnez un service",
+    joinQueue:"Rejoindre la file", enterPhone:"Numéro de téléphone", phonePlaceholder:"Ex: 0551 23 45 67",
+    phoneError:"Numéro invalide (05xx / 06xx / 07xx)", confirm:"Confirmer", cancel:"Annuler",
+    yourNumber:"Votre numéro", position:"Position dans la file", estWait:"Attente estimée",
+    minutes:"min", people:"personnes avant vous", smsLog:"✅ SMS simulé : Votre tour approche bientôt",
+    cancelQueue:"Annuler ma place", adminBtn:"Gestionnaire →", adminTitle:"Tableau de bord",
+    adminLogin:"Connexion gestionnaire", adminPass:"Mot de passe", adminPassHint:"Mot de passe : admin123",
+    login:"Se connecter", callNext:"Appeler le suivant ▶", markServed:"✓ Servi", markNoShow:"✗ Absent",
+    serving:"En cours", waiting:"En attente", queueEmpty:"File vide", nowServing:"Numéro appelé",
+    back:"← Retour", howWorks:"Comment ça marche ?", terms:"J'accepte les conditions d'utilisation",
+    queueLength:"en attente", backHome:"← Accueil", wrongPass:"Mot de passe incorrect",
+    loading:"Chargement...", error:"Erreur de connexion. Veuillez réessayer.",
+    alreadyInQueue:"Vous êtes déjà dans cette file aujourd'hui.",
+    served:"Servi", noshow:"Absent", cancelled:"Annulé",
+  },
+  ar: {
+    heroTitle:"توقف عن الانتظار الطويل.", heroSub:"خذ رقمك عن بُعد. احضر في الوقت المناسب.",
+    step1:"اختر الخدمة", step2:"احصل على رقمك", step3:"تلقّ الإشعار",
+    chooseType:"اختر نوع الخدمة", chooseService:"اختر الخدمة",
+    joinQueue:"انضم إلى الصف", enterPhone:"رقم الهاتف", phonePlaceholder:"مثال: 0551 23 45 67",
+    phoneError:"رقم غير صالح (05xx / 06xx / 07xx)", confirm:"تأكيد", cancel:"إلغاء",
+    yourNumber:"رقمك في الصف", position:"موقعك", estWait:"الوقت المقدر",
+    minutes:"دقيقة", people:"أشخاص أمامك", smsLog:"✅ رسالة مُحاكاة: دورك يقترب",
+    cancelQueue:"إلغاء مكاني", adminBtn:"لوحة الإدارة ←", adminTitle:"لوحة التحكم",
+    adminLogin:"دخول المشرف", adminPass:"كلمة المرور", adminPassHint:"كلمة المرور: admin123",
+    login:"دخول", callNext:"استدعاء التالي ▶", markServed:"✓ خُدِم", markNoShow:"✗ غائب",
+    serving:"جاري الخدمة", waiting:"بالانتظار", queueEmpty:"الصف فارغ", nowServing:"الرقم المُستدعى",
+    back:"→ رجوع", howWorks:"كيف يعمل؟", terms:"أوافق على شروط الاستخدام",
+    queueLength:"ينتظر", backHome:"الرئيسية →", wrongPass:"كلمة مرور خاطئة",
+    loading:"جاري التحميل...", error:"خطأ في الاتصال. حاول مرة أخرى.",
+    alreadyInQueue:"أنت بالفعل في هذا الصف اليوم.",
+    served:"خُدِم", noshow:"غائب", cancelled:"ملغى",
+  },
+};
+
+const INST = {
+  apc:    { fr:"Mairie / APC",  ar:"البلدية",  color:"#1a6b3c", bg:"#e6f4ed", icon:"🏛️" },
+  clinic: { fr:"Clinique",      ar:"العيادة",  color:"#b83232", bg:"#fce8e8", icon:"🏥" },
+  bank:   { fr:"Banque",        ar:"البنك",    color:"#1a4580", bg:"#e6edf8", icon:"🏦" },
+};
+
+function pad(n){ return String(n).padStart(3,"0"); }
+function validatePhone(p){ return /^0[567]\d{8}$/.test(p.replace(/\s/g,"")); }
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [lang, setLang] = useState("fr");
+  const [page, setPage] = useState("home");
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [selectedSvc, setSelectedSvc] = useState(null);
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [queueEntry, setQueueEntry] = useState(null); // {queueNumber, position, estimatedWait, status, serviceId}
+  const [smsShown, setSmsShown] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [adminPass, setAdminPass] = useState("");
+  const [adminAuthed, setAdminAuthed] = useState(false);
+  const [adminError, setAdminError] = useState(false);
+  const [adminQueues, setAdminQueues] = useState({});
+  const [adminFilter, setAdminFilter] = useState("all");
+  const [nowServing, setNowServing] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+
+  const t = T[lang];
+  const isRTL = lang === "ar";
+
+  const showNotif = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  // Load services
+  const loadServices = useCallback(async () => {
+    try {
+      const res = await fetch("/api/services");
+      const data = await res.json();
+      setServices(data);
+    } catch(e) { console.error(e); }
+    finally { setLoadingServices(false); }
+  }, []);
+
+  useEffect(() => { loadServices(); }, [loadServices]);
+
+  // Reload services counts every 10s when on home/select
+  useEffect(() => {
+    if (!["home","select"].includes(page)) return;
+    const interval = setInterval(loadServices, 10000);
+    return () => clearInterval(interval);
+  }, [page, loadServices]);
+
+  // Poll queue status every 6s — use ref to avoid stacking intervals on state changes
+  const queueEntryRef = React.useRef(queueEntry);
+  const smsShownRef = React.useRef(smsShown);
+  useEffect(() => { queueEntryRef.current = queueEntry; }, [queueEntry]);
+  useEffect(() => { smsShownRef.current = smsShown; }, [smsShown]);
+
+  useEffect(() => {
+    if (page !== "status") return;
+    const poll = async () => {
+      const entry = queueEntryRef.current;
+      if (!entry) return;
+      try {
+        const res = await fetch(`/api/queue/status/${entry.serviceId}/${entry.queueNumber}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setQueueEntry(prev => prev ? { ...prev, position: data.position, estimatedWait: data.estimatedWait, status: data.status } : prev);
+        if (data.position <= 2 && !smsShownRef.current) setSmsShown(true);
+        if (data.status === "cancelled") { setPage("home"); setQueueEntry(null); }
+      } catch(e) {}
+    };
+    poll();
+    const interval = setInterval(poll, 6000);
+    return () => clearInterval(interval);
+  }, [page]);
+
+  // Poll admin queues every 5s when admin is open
+  useEffect(() => {
+    if (page !== "admin" || !adminAuthed) return;
+    const pollAdmin = async () => {
+      const svcIds = adminFilter === "all"
+        ? services.map(s => s.id)
+        : services.filter(s => s.type === adminFilter).map(s => s.id);
+      const results = {};
+      for (const id of svcIds) {
+        try {
+          const res = await fetch(`/api/admin/queue/${id}?password=${encodeURIComponent(adminPass)}`);
+          if (res.ok) results[id] = await res.json();
+        } catch(e) {}
+      }
+      setAdminQueues(results);
+    };
+    pollAdmin();
+    const interval = setInterval(pollAdmin, 5000);
+    return () => clearInterval(interval);
+  }, [page, adminAuthed, adminFilter, services, adminPass]);
+
+  const handleJoin = async () => {
+    const cleaned = phone.replace(/\s/g,"");
+    if (!validatePhone(cleaned)) { setPhoneError(true); return; }
+    if (!termsAccepted || !selectedSvc) return;
+    setJoining(true);
+    try {
+      const res = await fetch("/api/queue/join", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ serviceId: selectedSvc.id }),
+      });
+      const data = await res.json();
+      if (data.error) { showNotif("⚠️ " + data.error); return; }
+      setQueueEntry({ ...data, serviceId: selectedSvc.id, status:"waiting" });
+      setSmsShown(false);
+      setPhone(""); setTermsAccepted(false); setPhoneError(false);
+      setPage("status");
+      showNotif(lang==="fr" ? `✅ Numéro ${pad(data.queueNumber)} confirmé !` : `✅ تم تأكيد الرقم ${pad(data.queueNumber)} !`);
+    } catch(e) {
+      showNotif("⚠️ " + t.error);
+    } finally { setJoining(false); }
+  };
+
+  const handleCancel = async () => {
+    if (!queueEntry) return;
+    await fetch(`/api/queue/${queueEntry.serviceId}/${queueEntry.queueNumber}`, { method:"DELETE" });
+    setQueueEntry(null); setPage("home");
+  };
+
+  const handleAdminLogin = async () => {
+    // Validate against server — works with any ADMIN_PASSWORD set on Render
+    try {
+      const res = await fetch(`/api/admin/queue/apc-1?password=${encodeURIComponent(adminPass)}`);
+      if (res.ok) { setAdminAuthed(true); setAdminError(false); }
+      else { setAdminError(true); }
+    } catch(e) { setAdminError(true); }
+  };
+
+  const handleCallNext = async (serviceId) => {
+    setAdminLoading(true);
+    try {
+      const res = await fetch(`/api/admin/call-next/${serviceId}`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ password: adminPass }),
+      });
+      const data = await res.json();
+      if (data.queueNumber) {
+        setNowServing(data.queueNumber);
+        showNotif(lang==="fr" ? `📢 Numéro ${pad(data.queueNumber)} appelé` : `📢 تم استدعاء الرقم ${pad(data.queueNumber)}`);
+      } else {
+        showNotif(lang==="fr" ? "File vide" : "الصف فارغ");
+      }
+      // Refresh queue
+      const qRes = await fetch(`/api/admin/queue/${serviceId}?password=${encodeURIComponent(adminPass)}`);
+      if (qRes.ok) { const qData = await qRes.json(); setAdminQueues(prev => ({ ...prev, [serviceId]: qData })); }
+    } catch(e) {
+      showNotif(lang==="fr" ? "⚠️ Erreur réseau. Réessayez." : "⚠️ خطأ في الشبكة. حاول مجدداً.");
+    } finally {
+      setAdminLoading(false); // B7: always reset — button never stuck
+    }
+  };
+
+  const handleMark = async (serviceId, entryId, status) => {
+    await fetch(`/api/admin/mark/${entryId}`, {
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ password: adminPass, status }),
+    });
+    const res = await fetch(`/api/admin/queue/${serviceId}?password=${encodeURIComponent(adminPass)}`);
+    if (res.ok) { const rData = await res.json(); setAdminQueues(prev => ({ ...prev, [serviceId]: rData })); }
+  };
+
+  const visibleServices = adminFilter === "all" ? services : services.filter(s => s.type === adminFilter);
+
+  return (
+    <div dir={isRTL?"rtl":"ltr"} style={{
+      fontFamily: isRTL?"'Cairo',sans-serif":"'Plus Jakarta Sans',sans-serif",
+      minHeight:"100vh", background:"#f0f4f1", color:"#0d1f12"
+    }}>
+      {notification && <div className="notification-toast">{notification}</div>}
+
+      {/* TOP BAR */}
+      <div className="top-bar">
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          {page !== "home" && (
+            <button onClick={() => { if(page==="admin"){setAdminAuthed(false);setAdminPass("");} setPage("home"); }}
+              style={{background:"rgba(255,255,255,.2)",border:"none",color:"#fff",padding:"6px 12px",borderRadius:"8px",cursor:"pointer",fontSize:13,fontFamily:"inherit"}}>
+              {isRTL?"→":"←"}
+            </button>
+          )}
+          <span style={{color:"#fff",fontWeight:800,fontSize:18,letterSpacing:"-.5px"}}>
+            SmartQueue <span style={{color:"#7dd4a8"}}>DZ</span>
+          </span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          {page !== "admin" && (
+            <button onClick={() => setPage("admin")}
+              style={{background:"rgba(255,255,255,.15)",border:"none",color:"rgba(255,255,255,.9)",padding:"6px 14px",borderRadius:"8px",cursor:"pointer",fontSize:12,fontFamily:"inherit",fontWeight:600}}>
+              {t.adminBtn}
+            </button>
+          )}
+          <div className="lang-toggle">
+            <button className={`lang-btn ${lang==="fr"?"active":""}`} onClick={() => setLang("fr")}>FR</button>
+            <button className={`lang-btn ${lang==="ar"?"active":""}`} onClick={() => setLang("ar")}>AR</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── HOME ── */}
+      {page === "home" && (
+        <div className="fade-in">
+          <div className="hero-section">
+            <div style={{position:"relative",zIndex:1}}>
+              <div className="badge" style={{marginBottom:20}}>🇩🇿 الجزائر • Algeria</div>
+              <h1 style={{color:"#fff",fontSize:30,fontWeight:800,lineHeight:1.2,letterSpacing:"-1px",marginBottom:14,maxWidth:380,margin:"0 auto 14px"}}>{t.heroTitle}</h1>
+              <p style={{color:"rgba(255,255,255,.75)",fontSize:15,maxWidth:320,margin:"0 auto 32px",lineHeight:1.6}}>{t.heroSub}</p>
+              <button className="sq-btn" onClick={() => setPage("select")}
+                style={{background:"#fff",color:"#006233",fontSize:16,padding:"16px 36px",borderRadius:16,fontWeight:800,boxShadow:"0 8px 24px rgba(0,0,0,.2)"}}>
+                {t.joinQueue} →
+              </button>
+            </div>
+          </div>
+
+          <div className="scroll-content" style={{paddingTop:32}}>
+            <h2 style={{fontSize:14,fontWeight:700,color:"#4a7a5e",textTransform:"uppercase",letterSpacing:"1px",marginBottom:16}}>{t.howWorks}</h2>
+            <div className="steps-grid" style={{marginBottom:32}}>
+              {[{icon:"📍",label:t.step1},{icon:"🎫",label:t.step2},{icon:"🔔",label:t.step3}].map((s,i) => (
+                <div key={i} className="sq-card" style={{textAlign:"center",padding:20}}>
+                  <div style={{fontSize:28,marginBottom:8}}>{s.icon}</div>
+                  <div style={{width:24,height:24,borderRadius:"50%",background:"#006233",color:"#fff",fontSize:12,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 8px"}}>{i+1}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:"#2d5a3d",lineHeight:1.4}}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <h2 style={{fontSize:14,fontWeight:700,color:"#4a7a5e",textTransform:"uppercase",letterSpacing:"1px",marginBottom:16}}>{t.chooseType}</h2>
+            {loadingServices ? (
+              <div style={{padding:32,textAlign:"center"}}><div className="spinner"/></div>
+            ) : (
+              ["apc","clinic","bank"].map(type => {
+                const inst = INST[type];
+                const count = services.filter(s=>s.type===type).reduce((a,s)=>a+parseInt(s.waiting_count||0),0);
+                return (
+                  <div key={type} onClick={() => setPage("select")} className="sq-card"
+                    style={{marginBottom:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 20px",transition:"all .18s"}}
+                    onMouseEnter={e=>e.currentTarget.style.transform="translateX(4px)"}
+                    onMouseLeave={e=>e.currentTarget.style.transform="translateX(0)"}>
+                    <div style={{display:"flex",alignItems:"center",gap:12}}>
+                      <div style={{width:44,height:44,borderRadius:12,background:inst.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>{inst.icon}</div>
+                      <div>
+                        <div style={{fontWeight:700,fontSize:15}}>{inst[lang==="fr"?"fr":"ar"]}</div>
+                        <div style={{fontSize:13,color:"#6b9c7a"}}>{count} {t.queueLength}</div>
+                      </div>
+                    </div>
+                    <span style={{color:"#006233",fontSize:20}}>{isRTL?"←":"→"}</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── SELECT SERVICE ── */}
+      {page === "select" && (
+        <div className="fade-in scroll-content" style={{paddingTop:28}}>
+          <h2 style={{fontWeight:800,fontSize:22,marginBottom:6}}>{t.chooseService}</h2>
+          <p style={{color:"#6b9c7a",marginBottom:24,fontSize:14}}>{t.chooseType}</p>
+          {["apc","clinic","bank"].map(type => {
+            const inst = INST[type];
+            return (
+              <div key={type} style={{marginBottom:24}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                  <div style={{width:32,height:32,borderRadius:8,background:inst.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{inst.icon}</div>
+                  <span style={{fontWeight:700,fontSize:15,color:inst.color}}>{inst[lang==="fr"?"fr":"ar"]}</span>
+                </div>
+                {services.filter(s=>s.type===type).map(svc => {
+                  const count = parseInt(svc.waiting_count||0);
+                  return (
+                    <div key={svc.id} className={`service-card ${selectedSvc?.id===svc.id?"selected":""}`}
+                      onClick={() => setSelectedSvc(svc)} style={{marginBottom:8}}>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                        <div>
+                          <div style={{fontWeight:600,fontSize:14}}>{lang==="fr"?svc.name_fr:svc.name_ar}</div>
+                          <div style={{fontSize:12,color:"#6b9c7a",marginTop:3}}>⏱ ~{svc.avg_time} {t.minutes} • {count} {t.queueLength}</div>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <span className="sq-tag" style={{background:count===0?"#e6f4ed":"#fff8e6",color:count===0?"#006233":"#a07000"}}>
+                            {count===0?t.serving.replace("En cours","Libre").replace("جاري الخدمة","متاح"):`${count} 👤`}
+                          </span>
+                          {selectedSvc?.id===svc.id && <span style={{color:"#006233",fontSize:18}}>✓</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+          <div style={{height:80}}/>
+          <div className="footer-cta">
+            <button className="sq-btn sq-btn-secondary" onClick={() => setPage("home")} style={{flex:1}}>{t.cancel}</button>
+            <button className="sq-btn sq-btn-primary" onClick={() => { if(selectedSvc) setPage("join"); }}
+              disabled={!selectedSvc} style={{flex:2}}>{t.confirm} →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── JOIN ── */}
+      {page === "join" && selectedSvc && (
+        <div className="fade-in scroll-content" style={{paddingTop:28}}>
+          <div className="sq-card" style={{marginBottom:20,background:"#e6f4ed",border:"2px solid #c2dece"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div style={{fontSize:28}}>{INST[selectedSvc.type].icon}</div>
+              <div>
+                <div style={{fontWeight:700,fontSize:14}}>{lang==="fr"?selectedSvc.name_fr:selectedSvc.name_ar}</div>
+                <div style={{fontSize:13,color:"#4a7a5e"}}>⏱ ~{selectedSvc.avg_time} {t.minutes} {lang==="fr"?"par personne":"لكل شخص"}</div>
+              </div>
+            </div>
+          </div>
+          <div className="sq-card" style={{marginBottom:20}}>
+            <label style={{display:"block",fontWeight:700,fontSize:14,marginBottom:8,color:"#2d5a3d"}}>📱 {t.enterPhone}</label>
+            <input className={`sq-input ${phoneError?"sq-input-error":""}`} placeholder={t.phonePlaceholder}
+              value={phone} onChange={e=>{setPhone(e.target.value);setPhoneError(false);}}
+              onKeyDown={e=>e.key==="Enter"&&handleJoin()} maxLength={12}/>
+            {phoneError && <p style={{color:"#e74c3c",fontSize:13,marginTop:6,fontWeight:500}}>⚠️ {t.phoneError}</p>}
+          </div>
+          <div className="sq-card" style={{marginBottom:20}}>
+            <label style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
+              <input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/>
+              <span style={{fontSize:14,color:"#2d5a3d",fontWeight:500}}>{t.terms}</span>
+            </label>
+          </div>
+          <div style={{background:"#fffbea",border:"2px solid #fde68a",borderRadius:12,padding:"12px 16px",marginBottom:80,fontSize:13,color:"#92400e"}}>
+            🔒 {lang==="fr"?"Votre numéro est utilisé uniquement pour votre position dans la file.":"رقمك يُستخدم فقط لتحديد موقعك في الصف."}
+          </div>
+          <div className="footer-cta">
+            <button className="sq-btn sq-btn-secondary" onClick={() => setPage("select")} style={{flex:1}}>{t.back}</button>
+            <button className="sq-btn sq-btn-primary" onClick={handleJoin}
+              disabled={!phone||!termsAccepted||joining} style={{flex:2}}>
+              {joining ? "..." : `🎫 ${t.joinQueue}`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STATUS ── */}
+      {page === "status" && queueEntry && (
+        <div className="fade-in scroll-content" style={{paddingTop:28}}>
+          <div className="sq-card" style={{background:"linear-gradient(145deg,#006233,#004d28)",textAlign:"center",marginBottom:20,padding:"40px 28px"}}>
+            <div style={{color:"rgba(255,255,255,.7)",fontSize:13,fontWeight:600,letterSpacing:"1px",textTransform:"uppercase",marginBottom:8}}>{t.yourNumber}</div>
+            <div className="number-display pulse-ring" style={{color:"#fff",background:"rgba(255,255,255,.1)",borderRadius:24,display:"inline-block",padding:"16px 40px",marginBottom:12,minWidth:160}}>
+              {pad(queueEntry.queueNumber)}
+            </div>
+            <div style={{color:"rgba(255,255,255,.8)",fontSize:14}}>{lang==="fr"?selectedSvc?.name_fr:selectedSvc?.name_ar}</div>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+            <div className="sq-card" style={{textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b9c7a",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6}}>{t.position}</div>
+              <div style={{fontSize:40,fontWeight:800,color:"#006233",lineHeight:1}}>{queueEntry.position}</div>
+              <div style={{fontSize:12,color:"#6b9c7a",marginTop:4}}>{t.people}</div>
+            </div>
+            <div className="sq-card" style={{textAlign:"center"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b9c7a",textTransform:"uppercase",letterSpacing:"1px",marginBottom:6}}>{t.estWait}</div>
+              <div style={{fontSize:40,fontWeight:800,color:"#1a6b3c",lineHeight:1}}>{queueEntry.estimatedWait}</div>
+              <div style={{fontSize:12,color:"#6b9c7a",marginTop:4}}>{t.minutes}</div>
+            </div>
+          </div>
+
+          {smsShown && <div className="sms-log" style={{marginBottom:16}}>{t.smsLog}</div>}
+
+          <div className="sq-card" style={{marginBottom:20}}>
+            <div style={{fontSize:13,color:"#4a7a5e",fontWeight:600,marginBottom:8}}>
+              {lang==="fr"?"📊 Votre position se met à jour automatiquement (toutes les 6s)":"📊 يتحدث موقعك تلقائياً كل 6 ثوان"}
+            </div>
+            <div style={{background:"#f0f4f1",borderRadius:8,height:6,overflow:"hidden"}}>
+              <div style={{width:`${Math.max(5,100-(queueEntry.position*15))}%`,height:"100%",background:"#006233",borderRadius:8,transition:"width 1s ease"}}/>
+            </div>
+          </div>
+
+          <button className="sq-btn sq-btn-danger" onClick={handleCancel} style={{width:"100%"}}>{t.cancelQueue}</button>
+          <div style={{height:20}}/>
+        </div>
+      )}
+
+      {/* ── ADMIN ── */}
+      {page === "admin" && (
+        <div className="fade-in scroll-content" style={{paddingTop:28}}>
+          {!adminAuthed ? (
+            <div className="sq-card" style={{maxWidth:360,margin:"0 auto"}}>
+              <div style={{textAlign:"center",marginBottom:24}}>
+                <div style={{fontSize:40,marginBottom:8}}>🔐</div>
+                <h2 style={{fontWeight:800,fontSize:20}}>{t.adminLogin}</h2>
+              </div>
+              <label style={{display:"block",fontWeight:700,fontSize:13,marginBottom:8,color:"#2d5a3d"}}>{t.adminPass}</label>
+              <input className={`sq-input ${adminError?"sq-input-error":""}`} type="password"
+                placeholder="••••••••" value={adminPass}
+                onChange={e=>{setAdminPass(e.target.value);setAdminError(false);}}
+                onKeyDown={e=>e.key==="Enter"&&handleAdminLogin()} style={{marginBottom:8}}/>
+              <p style={{fontSize:12,color:"#6b9c7a",marginBottom:16}}>💡 {t.adminPassHint}</p>
+              {adminError && <p style={{color:"#e74c3c",fontSize:13,marginBottom:12}}>⚠️ {t.wrongPass}</p>}
+              <button className="sq-btn sq-btn-primary" style={{width:"100%"}} onClick={handleAdminLogin}>{t.login}</button>
+            </div>
+          ) : (
+            <div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}}>
+                <h2 style={{fontWeight:800,fontSize:22}}>{t.adminTitle}</h2>
+                {nowServing !== null && (
+                  <div style={{background:"#006233",color:"#fff",padding:"8px 16px",borderRadius:10,fontSize:13,fontWeight:700}}>
+                    {t.nowServing}: <span style={{fontSize:18}}>{pad(nowServing)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{display:"flex",gap:8,marginBottom:20,flexWrap:"wrap"}}>
+                <button className={`type-btn ${adminFilter==="all"?"active":""}`} onClick={()=>setAdminFilter("all")}>
+                  📋 {lang==="fr"?"Tous":"الكل"}
+                </button>
+                {["apc","clinic","bank"].map(type => (
+                  <button key={type} className={`type-btn ${adminFilter===type?"active":""}`} onClick={()=>setAdminFilter(type)}>
+                    {INST[type].icon} {INST[type][lang==="fr"?"fr":"ar"]}
+                  </button>
+                ))}
+              </div>
+
+              {visibleServices.map(svc => {
+                const entries = adminQueues[svc.id] || [];
+                const waiting = entries.filter(e=>e.status==="waiting").length;
+                return (
+                  <div key={svc.id} className="sq-card" style={{marginBottom:16}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:10}}>
+                      <div>
+                        <div style={{fontWeight:700,fontSize:15}}>{lang==="fr"?svc.name_fr:svc.name_ar}</div>
+                        <div style={{fontSize:12,color:"#6b9c7a",marginTop:2}}>
+                          {waiting} {t.waiting} • {entries.filter(e=>e.status==="serving").length} {t.serving}
+                        </div>
+                      </div>
+                      <button className="sq-btn sq-btn-primary sq-btn-sm" disabled={waiting===0||adminLoading}
+                        onClick={()=>handleCallNext(svc.id)}>{t.callNext}</button>
+                    </div>
+                    {entries.length === 0 ? (
+                      <p style={{color:"#9db8a8",fontSize:13,textAlign:"center",padding:"8px 0"}}>{t.queueEmpty}</p>
+                    ) : entries.map(entry => (
+                      <div key={entry.id} className={`admin-row ${entry.status==="serving"?"serving-row":""}`}>
+                        <div style={{flex:1}}>
+                          <span style={{fontWeight:700,fontSize:16,color:"#006233"}}>#{pad(entry.queue_number)}</span>
+                        </div>
+                        <span className="sq-tag" style={{
+                          background:entry.status==="waiting"?"#fff8e6":entry.status==="serving"?"#e6f4ed":"#f0f0f0",
+                          color:entry.status==="waiting"?"#a07000":entry.status==="serving"?"#006233":"#666"
+                        }}>
+                          {entry.status==="waiting"?t.waiting:entry.status==="serving"?t.serving:
+                           entry.status==="served"?t.served:entry.status==="noshow"?t.noshow:t.cancelled}
+                        </span>
+                        {entry.status==="serving" && (
+                          <div style={{display:"flex",gap:6,marginLeft:8}}>
+                            <button className="sq-btn sq-btn-sm" onClick={()=>handleMark(svc.id,entry.id,"served")}
+                              style={{background:"#e6f4ed",color:"#006233",border:"none",padding:"6px 12px"}}>{t.markServed}</button>
+                            <button className="sq-btn sq-btn-sm" onClick={()=>handleMark(svc.id,entry.id,"noshow")}
+                              style={{background:"#fff0f0",color:"#c0392b",border:"none",padding:"6px 12px"}}>{t.markNoShow}</button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+              <div style={{height:20}}/>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
